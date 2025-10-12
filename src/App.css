@@ -1,0 +1,27 @@
+.homebg{
+    background-image: url("../src/assets/Images/wavy_line_pattern_in_dark_background.jpg");
+}
+.email{
+    background-color: #351c5e;
+}
+.inputs{
+    background-color: #441c88;
+}
+.password{
+    background-color: #8157d9;
+}
+
+.herosection{
+   /* background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+   
+}
+/* .TypeAnimaton{
+   background: #667eea;
+background: radial-gradient(circle, rgba(113, 63, 251, 1) 0%, rgb(102,126,234)100%);
+} */
+
+/* In your main CSS file (e.g., index.css) */
+.star-rating-container {
+  /* This is the key to making the stars appear */
+  height: 24px; 
+}
