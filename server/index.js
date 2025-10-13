@@ -18,7 +18,7 @@ const { LogOut } = require("lucide-react");
 // Middleware setup
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:3000" , "http://localhost:3001" ,  "https://study-notion-q7mvc7vh5-shobhan-bhagwatis-projects.vercel.app" ],
+  origin: ["http://localhost:3000" , "http://localhost:3001" ,  /\.vercel\.app$/],
   credentials: true,
 }));
 
