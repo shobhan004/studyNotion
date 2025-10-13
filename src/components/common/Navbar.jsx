@@ -81,12 +81,12 @@ const Navbar = () => {
         </div>
         
         
-        <div className='absolute z-50 top-full  flex flex-col rounded-lg gap-1.5 px-6 py-2 bg-white shadow-md scale-y-0 group-hover:scale-y-100 origin-top duration-200'>
+        {/* <div className='absolute z-50 top-full  flex flex-col rounded-lg gap-1.5 px-6 py-2 bg-white shadow-md scale-y-0 group-hover:scale-y-100 origin-top duration-200'>
         <Link to={"/webdevelopment"} className='text-black font-roboto font-medium hover:bg-gray-400 transition-all p-2 hover:rounded-md'>Web Developement</Link>
         <Link to={"/webdevelopment"} className='text-black font-roboto font-medium  hover:bg-gray-400 transition-all p-2 hover:rounded-md'>JavaScript</Link>
         <Link to={"/webdevelopment"} className='text-black font-roboto font-medium  hover:bg-gray-400 transition-all p-2 hover:rounded-md'>C++</Link>
         <Link to={"/webdevelopment"} className='text-black font-roboto font-medium  hover:bg-gray-400 transition-all p-2 hover:rounded-md'> HTML</Link>
-        </div>
+        </div> */}
         
         
         </div>
