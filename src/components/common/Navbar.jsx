@@ -74,7 +74,7 @@ const Navbar = () => {
           </div>
          
         </div> */} 
-        <div className='flex group relative items-center text-white font-montserrat font-medium '>
+        <div className='flex  relative items-center text-white font-montserrat font-medium '>
         <div className=' flex items-center gap-1 text-white font-montserrat font-semibold mt-0 cursor-pointer'>
          <span onClick={() => navigate("/courses")} className='text-white font-medium'>Courses</span>
         {/* <RiArrowDropDownLine  className='text-3xl'/> */}
