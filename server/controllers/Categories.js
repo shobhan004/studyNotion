@@ -1,4 +1,4 @@
-const { data } = require("react-router-dom");
+
 const Category = require("../model/Category");
 
 
@@ -40,6 +40,8 @@ exports.showAllCategories = async(req , res) =>{
         // mongoose + mongodb apne aap se id and other things add krke save krta hai
         // so we only need name and description
         try{
+        //  isko projection kehte hai ki saare catrgory le aao {} iska mtlb and name : true , description:true
+        // inka mtlb ki categories me sirf name and description hi lana 
          const allCategories = await Category.find({} , {name : true , description:true});
 
          return res.status(200).json({
