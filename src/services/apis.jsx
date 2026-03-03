@@ -1,7 +1,6 @@
 // const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
-const BASE_URL = "http://localhost:4000/api/v1";
-// console.log(BASE_URL);
+const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 
 // AUTH ENDPOINTS
