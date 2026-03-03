@@ -1,81 +1,150 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
-import { Star } from "lucide-react";
+import { Star, Quote } from "lucide-react";
+import { apiConnector } from '../services/apiconnector';
+import { RATING_API } from '../services/apis';
 
-const Testimonial = () => {
-
-    const reviews = [
-  {
-    name: "Ravi Kumar",
-    review: "STUDYNOTION has completely transformed the way I approach learning. The courses are exceptionally well-structured, and the step-by-step video tutorials make even complex topics easy to understand. The practical projects provided after each module really helped me solidify my understanding and gain hands-on experience. I feel more confident in my skills than ever before.",
-    rating: 5,
-    course: "DSA Mastery",
-  },
-  {
-    name: "Priya Sharma",
-    review: "The platform’s interface is sleek, intuitive, and incredibly user-friendly. Navigating between courses and modules is seamless, and the content quality is top-notch. The learning experience is immersive, and I particularly loved the way theory and practice are balanced.",
-    rating: 4,
-    course: "Web Development Bootcamp",
-  },
-  {
-    name: "Aman Verma",
-    review: "I have tried multiple online learning platforms, but STUDYNOTION stands out. The courses are very practical and provide real-world insights. The quizzes, assignments, and projects challenge you and help retain knowledge effectively.",
-    rating: 5,
-    course: "React.js Advanced",
-  },
-  {
-    name: "Neha Gupta",
-    review: "The instructors are highly knowledgeable and explain concepts in a very clear, concise manner. I appreciate how they break down complex topics into easy-to-follow steps",
-    rating: 5,
-    course: "Java Mastery",
-  },
+const COLORS = [
+    "bg-blue-100 text-blue-600",
+    "bg-purple-100 text-purple-600",
+    "bg-emerald-100 text-emerald-600",
+    "bg-orange-100 text-orange-600",
+    "bg-pink-100 text-pink-600",
+    "bg-yellow-100 text-yellow-600",
 ];
 
-
-  return (
-    <div className='w-[1200px] mx-auto min-h-[500px] py-40'>
-     <div className="max-w-5xl mx-auto py-10 ">
-      <h2 className="text-[3rem] font-bold  font-montserrat text-center text-orange-500 mb-24">
-        What Our Students Say
-      </h2>
-      <Swiper
-        modules={[Pagination, Autoplay]}
-        spaceBetween={30}
-        slidesPerView={1}
-        pagination={{ clickable: true }}
-        autoplay={{ delay: 2000 }}
-        loop={true}
-      >
-        {reviews.map((r, i) => (
-          <SwiperSlide key={i}>
-            <div className="bg-white shadow-lg rounded-2xl border-1 border-zinc-600 flex-col gap-5 w-[1000px]  p-6 text-center">
-              <div className="flex justify-center mb-3">
-                {[...Array(5)].map((_, idx) => (
-                  <Star
-                    key={idx}
-                    className={`w-6 h-6 ${
-                      idx < r.rating
-                        ? "text-yellow-400 fill-yellow-400"
-                        : "text-gray-800"
-                    }`}
-                  />
-                ))}
-              </div>
-              <p className="italic text-base text-[1.5rem] mb-4 font-semibold text-zinc-500">"{r.review}"</p>
-              <h3 className="font-bold text-[2rem] text-zinc-700 ">{r.name}</h3>
-              <p className="text-lg text-zinc-700 font-semibold">{r.course}</p>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </div>
-    </div>
-      
-    
-  )
+// "muku@gmail.com" → "Muku"
+const getNameFromEmail = (email = "") => {
+    return email.split("@")[0]
+        .replace(/[._-]/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase());
 }
 
-export default Testimonial
+// "muku@gmail.com" → "MU"
+const getInitials = (email = "") => {
+    const name = getNameFromEmail(email);
+    const parts = name.split(" ");
+    return parts.length > 1
+        ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+        : name.slice(0, 2).toUpperCase();
+}
+
+const Testimonial = () => {
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const res = await apiConnector("GET", RATING_API.GET_ALL_RATINGS);
+                if (res.data.success) {
+                    setReviews(res.data.data);
+                }
+            } catch (err) {
+                console.error("Could not fetch reviews:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchReviews();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="w-full flex justify-center py-20">
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
+    if (reviews.length === 0) {
+        return (
+            <div className="w-full text-center py-20 text-slate-400 font-medium">
+                No reviews yet. Be the first to leave one!
+            </div>
+        );
+    }
+
+    return (
+        <div className='w-full max-w-7xl mx-auto py-10 px-4'>
+            <div className="relative pt-10 pb-20">
+                <Swiper
+                    modules={[Pagination, Autoplay]}
+                    spaceBetween={30}
+                    breakpoints={{
+                        640: { slidesPerView: 1 },
+                        768: { slidesPerView: 2 },
+                        1024: { slidesPerView: 3 },
+                    }}
+                    pagination={{ clickable: true, dynamicBullets: true }}
+                    autoplay={{ delay: 3500, disableOnInteraction: false }}
+                    loop={true}
+                    className="mySwiper !pb-14"
+                >
+                    {reviews.map((r, i) => (
+                        <SwiperSlide key={r._id || i} className="h-full">
+                            <div className="bg-white/80 backdrop-blur-sm border border-slate-100 rounded-[2rem] p-8 h-full flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
+                                <div>
+                                    {/* Stars + Quote Icon */}
+                                    <div className="flex justify-between items-center mb-6">
+                                        <div className="flex gap-1">
+                                            {[...Array(5)].map((_, idx) => (
+                                                <Star
+                                                    key={idx}
+                                                    size={16}
+                                                    className={idx < r.rating ? "text-yellow-400 fill-yellow-400" : "text-slate-200"}
+                                                />
+                                            ))}
+                                        </div>
+                                        <Quote className="text-slate-100 group-hover:text-blue-100 transition-colors" size={32} />
+                                    </div>
+
+                                    {/* Review Text */}
+                                    <p className="text-slate-600 text-base leading-relaxed mb-8 font-medium italic">
+                                        "{r.review}"
+                                    </p>
+                                </div>
+
+                                {/* User Info */}
+                                <div className="flex items-center gap-4 mt-auto pt-6 border-t border-slate-100">
+                                    {r.user?.image ? (
+                                        <img
+                                            src={r.user.image}
+                                            alt={getNameFromEmail(r.user?.email)}
+                                            className="h-12 w-12 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className={`h-12 w-12 rounded-full flex items-center justify-center font-bold text-sm ${COLORS[i % COLORS.length]}`}>
+                                            {getInitials(r.user?.email)}
+                                        </div>
+                                    )}
+                                    <div className="flex flex-col items-start">
+                                        <h3 className="font-bold text-slate-900 text-lg leading-tight">
+                                            {getNameFromEmail(r.user?.email)}
+                                        </h3>
+                                        {/* <div className="flex gap-1 mt-0.5">
+                                            {[...Array(r.rating)].map((_, idx) => (
+                                                <Star key={idx} size={11} className="text-yellow-400 fill-yellow-400" />
+                                            ))}
+                                        </div> */}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+
+                <style dangerouslySetInnerHTML={{ __html: `
+                    .swiper-pagination-bullet-active { background: #2563eb !important; width: 24px !important; border-radius: 5px !important; }
+                    .swiper-pagination-bullet { background: #cbd5e1; opacity: 1; }
+                `}} />
+            </div>
+        </div>
+    );
+};
+
+export default Testimonial;

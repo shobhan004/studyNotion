@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @font-face {
     font-family: Roboto;
     src: url("./assets/fonts/Roboto-Regular.ttf");
@@ -9,4 +11,16 @@
 @theme{
     --font-roboto: Roboto, "sans-serif";
     --font-montserrat  :Montserrat, "sans-serif";
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* Poore app ki default font */
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Saare headings ek saath */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Syne', sans-serif;
 }

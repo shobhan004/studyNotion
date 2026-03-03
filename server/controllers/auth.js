@@ -1,4 +1,5 @@
 const OTP = require("../model/OTP");
+const Profile = require("../model/Profile");
 const User = require("../model/User");
 const bcrypt = require("bcrypt");
 const otpGenerator = require("otp-generator");
@@ -12,7 +13,7 @@ exports.sendOtp = async (req ,res) =>{
     try{
           const {email} = req.body;
 
-    const check = User.findOne({email});
+    const check = await  User.findOne({email});
 
     if(check){
         return res.status(401).json({
@@ -56,93 +57,96 @@ exports.sendOtp = async (req ,res) =>{
     }
 }
 
-exports.signUp = async (req ,res) =>{
-
-    
+exports.signUp = async (req, res) => {
     console.log("SIGNUP BODY:", req.body);
-    try{
-        const{
-         firstname,
-         lastname,
-         password,
-         confirmpassword,
-         email,
-        //  otp,
-        //  contactnumber,     
-        //  additionaldetails,
-        //  accountType
+    try {
+        const {
+            firstname,
+            lastname,
+            email,
+            password,
+            confirmpassword,
+            accountType, // Ise uncomment kar diya!
+            // otp // Abhi OTP commented rakhte hain testing ke liye
         } = req.body;
-        
-        console.log("📝 Extracted Data:", { firstname, lastname, email, password, confirmpassword });
+        // req.body ek object hota hai jisme fronted se data aata hai
+        // inko hum as it is inhi name se use kr skte hai aage
 
-        if(!firstname || !lastname || !password ||!confirmpassword || !email){
-            console.log("Missing a required field. The received body is:", req.body);
-            return res.status(401).json({
-              success: false,
-              message : "Please enter valid details",
-            }); 
+        // 1. Validation for all fields
+        if (!firstname || !lastname || !email || !password || !confirmpassword) {
+            return res.status(403).json({
+                success: false,
+                message: "All fields are required",
+            });
         }
 
-        // FindOne  always takes object as an input
-
-        const check = await User.findOne({email});
-
-        if(check){
-            return res.status(401).json({
-                success : false,
-                message : "email already registerd",
-            })
+        // 2. 🚨 FIX: Check if passwords match
+        if (password !== confirmpassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Password and Confirm Password do not match. Please try again.",
+            });
         }
 
-        // find top most otp stored in database
+        // 3. Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is already registered. Please sign in.",
+            });
+        }
 
-        // const recentOtp = await OTP.findOne({email}).sort({createdAt:-1}).limit(1);
-        // // bhai createdat -1 ka mtlb sbse recent dena and limit(1) ka mtlb bs ek hi dena
-        // console.log(recentOtp);
-        
-        // if(recentOtp.otp.length == 0){
-        //     return res.status(401).json({
-        //         sucess : false,
-        //         message : "OTP is not matched",
-        //     })
-        // }
-        // if(recentOtp.otp != otp){
-        //     return res.status(401).json({
-        //         sucess : false,
-        //         message : "OTP is not matched",
-        //     })
-        // }
+        /* ====================================================
+        OTP LOGIC (Abhi commented hai, baad mein chalayenge)
+        ====================================================
+        */
 
-        // hash password
-        const hashedpassword = await bcrypt.hash(password , 10);
+        // 4. Hash Password
+        const hashedPassword = await bcrypt.hash(password, 10);
 
+        // 5. 🚀 PRO MOVE: Create an empty profile for the user
+        const profileDetails = await Profile.create({
+            gender: null,
+            dateOfBirth: null,
+            about: null,
+            contactNumber: null,
+        });
+
+        // 6. Create Default Avatar using DiceBear API
+        const defaultImage = `https://api.dicebear.com/5.x/initials/svg?seed=${firstname} ${lastname}`;
+
+        // 7. Create User in DB
         const user = await User.create({
             firstname,
             lastname,
             email,
-            // contactnumber: contactnumber || "",
-            password: hashedpassword,
-            // additionaldetails: additionaldetails || "",
-            // accountType: accountType || "Student"
-        })
+            password: hashedPassword,
+            accountType: accountType || "Student", // Default to Student if not provided
+            additionaldetails: profileDetails._id, // Linking the blank profile
+            image: defaultImage, // Assigning the generated avatar
+        });
 
+        // 8. Return Success Response
         return res.status(200).json({
-            success : true,
-            message : "signed up successfully",
-        })
+            success: true,
+            message: "User registered successfully",
+            user,
+        });
 
-    }catch(err){
-        console.log(err);
-        res.status(404).json({
-            sucess : false,
-            message : 'signup failed',
-        } )
+    } catch (err) {
+        console.error("Signup Error:", err);
+        return res.status(500).json({
+            success: false,
+            message: "User registration failed. Please try again.",
+        });
     }
-}
+};
 
 
 exports.logIn = async(req, res) =>{
 try{
+    console.log("Body check:", req.body);
     const{email , password} = req.body;
 
      if (!email || !password) {
@@ -152,19 +156,25 @@ try{
         message: `Please Fill up All the Required Fields`,
       })
     }
+
+    const cleanEmail = email.trim().toLowerCase();
     
-    const user = await User.findOne({email : email});
-    
+    const user = await User.findOne({email : cleanEmail});
+
+     console.log("user ke pehle" , user);
     if(!user){
         return res.status(401).json({
         success: false,
         message: `User is not Registered with Us Please SignUp to Continue`,
       })
     }
+     
+    console.log("user ke baad");
+    // jwt jason web token give digital id card to the user
    
     if(await bcrypt.compare(password , user.password)){
         const token = jwt.sign({
-            email:user.email , id:user._id, role:user.role
+            email:user.email , id:user._id, accountType:user.accountType
         },
         process.env.JWT_SECRET,
         {

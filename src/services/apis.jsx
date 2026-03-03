@@ -1,4 +1,6 @@
-const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+// const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+
+const BASE_URL = "http://localhost:4000/api/v1";
 // console.log(BASE_URL);
 
 
@@ -43,9 +45,21 @@ export const courseEndpoints = {
   LECTURE_COMPLETION_API: BASE_URL + "/course/updateCourseProgress",
   CREATE_RATING_API: BASE_URL + "/course/createRating",
    ADD_TO_CART_API: BASE_URL + "/course/addToCart",
-  CREATE_COURSE_API: "/course/createCourse",
+  CREATE_COURSE_API: BASE_URL +  "/course/createCourse",
   GET_ADDED_COURSES: BASE_URL + "/course/getCourse",
 }
 
+export const profileEndpoints = {
+  GET_USER_ENROLLED_COURSES_API: BASE_URL + "/profile/getEnrolledCourses", 
+};
 
 
+export const RATING_API = {
+    GET_ALL_RATINGS: BASE_URL + "/rating/getAll",
+    CREATE_RATING: BASE_URL + "/rating/create",
+}
+
+export const ratingEndpoints = {
+    CREATE_RATING: BASE_URL + "/rating/create",
+    GET_ALL_RATINGS: BASE_URL + "/rating/getAll",
+}

@@ -1,95 +1,74 @@
-// coursePayment.js - Fixed version
-
 import toast from "react-hot-toast";
 import { apiConnector } from "./apiconnector";
 import { Payment } from "./apis";
 import rzp_logo from "../assets/Logo/rzp_logo.png"
-import { useDispatch } from "react-redux";
 import { setCourse } from "../slices/courseSlice";
 
 function loadScript(src) {
     return new Promise((resolve) => {
         const script = document.createElement("script");
         script.src = src;
-        
-        script.onload = () => {
-            resolve(true);
-        }
-        
-        script.onerror = () => {
-            resolve(false);
-        }
-        
-        // Script append karna body mein - yeh promise ke andar hona chahiye
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
         document.body.appendChild(script);
     });
 }
 
-export const BuyCourse = async(token, navigate, dispatch) => {
-    
+// 🚀 FIX 1: User data yahan accept karo (jahan se BuyCourse call hota hai, wahan se bhejna padega)
+export const BuyCourse = async (token, coursesId, userDetails, navigate, dispatch) => {
     const toastId = toast.loading("Loading...");
     
     try {
-        // Pehle Razorpay script load karo
         const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
         
         if (!res) {
             toast.error("Razorpay SDK failed to load. Are you online?");
+            toast.dismiss(toastId);
             return;
         }
 
-        const { BUY_NOW_PAYMENT_API, VERIFY_PAYMENT_API, SUCCESS_MAIL_SENDER_API } = Payment;
+        const { BUY_NOW_PAYMENT_API } = Payment;
         
-        // Order create karo backend se
+        // 1. Backend se order create karo
         const orderResponse = await apiConnector(
             "POST", 
             BUY_NOW_PAYMENT_API, 
-            null,
-            {
-                Authorization: `Bearer ${token}`
-            }
+            { courses: coursesId },
+            { Authorization: `Bearer ${token}` }
         );
 
         if (!orderResponse.data.success) {
             throw new Error(orderResponse.data.message);
         }
 
-        console.log("Order Response:", orderResponse.data); // Debug ke liye
+        console.log("Order Response:", orderResponse.data); 
 
-        const userDetails = orderResponse.data.userDetails;
-        
+        // 2. Razorpay Options (Redux wale userDetails ka use)
         const options = {
-            key: import.meta.env.VITE_REACT_APP_RAZORPAY_KEY,
- // Make sure yeh .env mein properly set hai
+            key: import.meta.env.VITE_REACT_APP_RAZORPAY_KEY, 
             amount: orderResponse.data.data.amount,
             currency: orderResponse.data.data.currency,
             name: "STUDYNOTION",
             description: "THANK YOU FOR PURCHASING COURSES",
             image: rzp_logo,
-            order_id: orderResponse.data.data.id, // Yeh important hai - order_id add karo
+            order_id: orderResponse.data.data.id,
             prefill: {
-                email: userDetails.email,
-                name: userDetails.firstname,
+                // 🚀 FIX 2: Optional chaining aur fallback string
+                name: userDetails?.firstName || userDetails?.firstname || "Guest User",
+                email: userDetails?.email || "guest@example.com",
             },
             handler: function (response) {
-                console.log("Payment Response:", response); // Debug ke liye
-                // Send successful payment mail
+                console.log("Payment Success Response:", response); 
                 sendPaymentSuccessmail(response, orderResponse.data.data.amount, token);
-                // Verify Payment
-                verifyPayment( response ,userDetails, token, navigate, dispatch);
+                verifyPayment(response, token, navigate, dispatch);
             },
+            theme: { color: "#3399cc" },
             modal: {
                 ondismiss: function() {
                     toast.error("Payment cancelled");
                 }
             }
         };
-
-        // Check karo ki Razorpay available hai ya nhi
-        if (typeof window.Razorpay === 'undefined') {
-            toast.error("Razorpay not loaded properly");
-            return;
-        }
 
         const paymentObject = new window.Razorpay(options);
         paymentObject.open();
@@ -98,36 +77,28 @@ export const BuyCourse = async(token, navigate, dispatch) => {
         console.log("Payment Error:", error);
         toast.error("Could not Complete Payment");
     }
-    
     toast.dismiss(toastId);
 }
 
+// Helper: Send Mail
 async function sendPaymentSuccessmail(paymentResponse, amount, token) {
     try {
         const { SUCCESS_MAIL_SENDER_API } = Payment;
-        
-        const res = await apiConnector("POST", SUCCESS_MAIL_SENDER_API, {
-            order_ID: paymentResponse.razorpay_order_id, // Note: underscore hai, camelCase nhi
-            payment_ID: paymentResponse.razorpay_payment_id,
+        await apiConnector("POST", SUCCESS_MAIL_SENDER_API, {
+            order_id: paymentResponse.razorpay_order_id, 
+            payment_id: paymentResponse.razorpay_payment_id,
             amount,
-        }, {
-            Authorization: `Bearer ${token}`,
-        });
-        
-        console.log("Mail sent:", res.data);
-        
+        }, { Authorization: `Bearer ${token}` });
     } catch (error) {
         console.log("Mail sending error:", error);
-        // Don't throw error here, just log it
     }
 }
 
-async function verifyPayment(bodyData, userDetails, token, navigate, dispatch) {
+// Helper: Verify Payment
+async function verifyPayment(bodyData, token, navigate, dispatch) {
     const toastId = toast.loading("Verifying payment. Please wait...");
-    
     try {
         const { VERIFY_PAYMENT_API } = Payment;
-        
         const response = await apiConnector("POST", VERIFY_PAYMENT_API, bodyData, {
             Authorization: `Bearer ${token}`
         });
@@ -136,23 +107,15 @@ async function verifyPayment(bodyData, userDetails, token, navigate, dispatch) {
             throw new Error(response.data.message);
         }
 
-        console.log("Payment verification response:", response.data);
-        console.log("Purchased courses:", response.data.purchasedCourses);
-
-        // IMMEDIATELY dispatch करें - setTimeout से पहले
         if (response.data.purchasedCourses) {
             dispatch(setCourse(response.data.purchasedCourses));
         }
 
-        toast.success("Payment Successful! Redirecting...");
-        
-        // Navigate without setTimeout - immediate
-        navigate("/dashboard/mycourses");
-        
+        toast.success("Payment Successful! 🎉");
+        navigate("/dashboard/enrolled-courses");
     } catch (error) {
         console.log("Payment verification error:", error);
         toast.error("Payment verification failed");
     }
-    
     toast.dismiss(toastId);
 }

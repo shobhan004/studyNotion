@@ -2,6 +2,13 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const dotenv = require("dotenv");
+const fileUpload = require("express-fileupload");
+// index.js ke top par baki imports ke sath:
+const cloudinary = require("./config/cloudinary");
+const ratingRoutes = require("./routes/ratingAndReview");
+
+// DB connect hone ke baad ya middlewares ke aas-paas isko likh do:
+cloudinary.cloudinaryConnect();
 
 // Load environment variables first
 dotenv.config();
@@ -11,12 +18,20 @@ const userRoutes = require("./routes/User");
 const courseRoutes = require("./routes/Course");
 const suggestionRoutes = require("./routes/Suggestion");
 const paymentRoutes = require("./routes/Payments");
+const progressRoutes = require("./routes/Progress");
 const PORT = process.env.PORT || 4000;
 const profileRoutes = require("./routes/Profile");
 const { LogOut } = require("lucide-react");
 
 // Middleware setup
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Form data encode karne ke liye
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+  })
+);
 app.use(cors({
   origin: ["http://localhost:3000" , "http://localhost:3001" ,  /\.vercel\.app$/],
   credentials: true,
@@ -30,7 +45,8 @@ app.use("/api/v1/course", courseRoutes);
 app.use("/api/v1/suggestions" ,suggestionRoutes);
 app.use("/api/v1/payment" , paymentRoutes);
 app.use("/api/v1/profile" , profileRoutes);
-
+app.use("/api/v1/progress" , progressRoutes);
+app.use("/api/v1/rating", ratingRoutes);
 
 
 // Database se connect hone ke baad hi server ko start karein

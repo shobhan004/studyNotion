@@ -43,43 +43,36 @@ const {
 //     toast.dismiss(toastId)
 //   }
 // }
- export function signUp(firstname,
-        lastname,
-        email,
-        password,
-        confirmpassword,
-        navigate
-      ){
-  return async(dispatch) =>{
-   dispatch(setLoading(true));
-
-   try{
-
-    const response = await apiConnector("POST" ,SIGNUP_API , {
+export function signUp(firstname, lastname, email, password, confirmpassword, accountType, navigate) {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      // 🚀 FIXED: accountType ko body mein add kiya
+      const response = await apiConnector("POST", SIGNUP_API, {
         firstname,
         lastname,
         email,
         password,
         confirmpassword,
-    } )
-    
-    console.log(response);
+        accountType, 
+      });
 
-    if(!response.data.success){
-      throw new Error(response.data.message);
+      console.log("SIGNUP API RESPONSE............", response);
+
+      if (!response.data.success) {
+        throw new Error(response.data.message);
+      }
+
+      toast.success("Signup Successfully");
+      navigate("/login");
+    } catch (err) {
+      console.log("SIGNUP ERROR............", err);
+      // Backend se jo error message aa raha hai wahi dikhao
+      toast.error(err.response?.data?.message || "Signup Failed");
     }
-    
-    toast.success("Signup Successfully");
-    navigate("/login");
-   }catch(err){
-    console.log(err);
-   toast.error("Signup Failed")
-   navigate("/signup")
-   }
-   dispatch(setLoading(false));
-
-  }
- }
+    dispatch(setLoading(false));
+  };
+}
 
  export function login(email ,password , navigate){
   return async(dispatch) =>{
@@ -99,7 +92,7 @@ const {
    
     const userImage = response.data?.user?.image
         ? response.data.user.image
-        : `https://api.dicebear.com/5.x/initials/svg?seed=${response.data.user.firstName} ${response.data.user.lastName}`
+        : `https://api.dicebear.com/5.x/initials/svg?seed=${response.data.user.firstname} ${response.data.user.lastname}`
 
       dispatch(setUser({ ...response.data.user, image: userImage }))
      
@@ -108,7 +101,7 @@ const {
    localStorage.setItem("token", response.data.token)
    dispatch(setToken(response.data.token));
     localStorage.setItem("user" , JSON.stringify(response.data.user));
-    navigate("/dashboard")
+    navigate("/dashboard/my-profile")
 
    }catch(err){
     console.log(err);
@@ -200,7 +193,7 @@ export function getPasswordResetToken(email , setEmailSent) {
 
 
 
-export const resetPassword = (password , confirmpassword , token) =>{
+export const resetPassword = (password , confirmpassword , token , navigate) =>{
 return async(dispatch) =>{
   dispatch(setLoading(true));
     console.log("Password:", password, "Confirm Password:", confirmpassword);
@@ -216,6 +209,7 @@ return async(dispatch) =>{
     }
 
     toast.success("Password has been reset successfully");
+    navigate("/login");
 
 
   }catch(err){

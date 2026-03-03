@@ -1,12 +1,13 @@
+const { data } = require("react-router-dom");
 const Category = require("../model/Category");
-const Tag = require("../model/Tag");
+
 
 exports.createCategory = async (req ,res) =>{
     try{
         const{name , description} = req.body;
 
         if(!name || !description){
-            return res.status(500).json({
+            return res.status(400).json({
                 success : false,
                 message : "Enter all details",
             })
@@ -39,11 +40,12 @@ exports.showAllCategories = async(req , res) =>{
         // mongoose + mongodb apne aap se id and other things add krke save krta hai
         // so we only need name and description
         try{
-         const allCategorys = await Category.find({} , {name : true , description:true});
+         const allCategories = await Category.find({} , {name : true , description:true});
 
-         return res.status(401).json({
+         return res.status(200).json({
             success : true,
             message : "All tags returned successfully",
+            data:allCategories
          })
 
         }catch(err){

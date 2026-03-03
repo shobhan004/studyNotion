@@ -1,96 +1,79 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-        // Define the name field with type String, required, and trimmed
-                firstname: {
-                    type: String,
-                    required: true,
-                    trim: true,
-                },
-                lastname: {
-                    type: String,
-                    required: true,
-                    trim: true,
-                },
-                // Define the email field with type String, required, and trimmed
-                email: {
-                    type: String,
-                    required: true,
-                    trim: true,
-                },
+const userSchema = new mongoose.Schema(
+    {
+        firstname: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        lastname: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        email: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        password: {
+            type: String,
+            required: true,
+        },
+        accountType: {
+            type: String,
+            enum: ["Admin", "Student", "Instructor"],
+            required: true, // Ise required kar do taaki koi bina role ke na aaye
+        },
+        active: {
+            type: Boolean,
+            default: true,
+        },
+        approved: {
+            type: Boolean,
+            default: true,
+        },
+        additionaldetails: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Profile",
+        },
         
-                // Define the password field with type String and required
-                password: {
-                    type: String,
-                    required: true,
-                },
-                // Define the role field with type String and enum values of "Admin", "Student", or "Visitor"
-                accountType: {
-                    type: String,
-                    enum: ["Admin", "Student", "Instructor"],
-                    
-                },
-                active: {
-                    type: Boolean,
-                    default: true,
-                },
-                approved: {
-                    type: Boolean,
-                    default: true,
-                },
-                additionaldetails: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    
-                    ref: "Profile",
-                },
-                // courses: [
-                //     {
-                //         type: mongoose.Schema.Types.ObjectId,
-                //         ref: "Course",
-                //     },
-                // ],
-                 addedCourses: [
-        {
-            id: { type: Number, required: true },
-            title: { type: String, required: true },
-            description: { type: String },
-            price: { type: Number, required: true },
-            image: { type: String },
-            rating: { type: Number },
-            purchaseDate: { type: Date, default: Date.now }
-        }
-    ],
-    purchasedCourses :[
-        {
-            id: { type: Number, required: true },
-            title: { type: String, required: true },
-            description: { type: String },
-            price: { type: Number, required: true },
-            image: { type: String },
-            rating: { type: Number },
-            purchaseDate: { type: Date, default: Date.now }
-        }
-    ],
-                token: {
-                    type: String,
-                },
-                resetPasswordExpires: {
-                    type: Date,
-                },
-                image: {
-                    type: String,
-                    
-                },
-                courseProgress: [
-                    {
-                        type: mongoose.Schema.Types.ObjectId,
-                        ref: "courseProgress",
-                    },
-                ],
-        
-                // Add timestamps for when the document is created and last modified
+        // 🚀 THE PRO APPROACH: Use References
+        // Agar user Instructor hai, toh ye unke banaye courses honge.
+        // Agar user Student hai, toh ye unke kharide hue courses honge.
+        courses: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Course",
             },
-            { timestamps: true }
+        ],
+        
+        // Cart items ke liye bhi sirf ObjectId store karo
+        cart: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Course",
+            }
+        ],
+
+        token: {
+            type: String,
+        },
+        resetPasswordExpires: {
+            type: Date,
+        },
+        image: {
+            type: String,
+        },
+        courseProgress: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "CourseProgress", // Make sure "CourseProgress" model exist karta ho
+            },
+        ],
+    },
+    { timestamps: true }
 );
 
-module.exports = mongoose.model("User" , userSchema);
+module.exports = mongoose.model("User", userSchema);

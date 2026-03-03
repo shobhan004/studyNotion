@@ -1,189 +1,125 @@
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import CTAButton from '../core/Home/CTAButton';
-import { apiConnector } from '../../services/apiconnector';
-import { countryCode } from '../../data/countryCode';
-import {categories } from '../../services/apis';
-import toast from 'react-hot-toast';
+import { apiConnector } from '../../services/apiconnector'
+import { ratingEndpoints } from '../../services/apis'  // apna API path
+import toast from 'react-hot-toast'
+import { Star } from 'lucide-react'
+import { useSelector } from 'react-redux'
 
-const ContactForm = () => {
-    const[loading , setLoading] = useState(false);
-    const {SUBMIT_SUGGESTIONS_API} = categories;
-    
-    // register ka matlb hota hai ki apko isski state manage krni hai and espar validation lagane hai jese required true
+const ReviewForm = () => {
+    const [loading, setLoading] = useState(false)
+    const [hovered, setHovered] = useState(0)
+    const { token } = useSelector((state) => state.auth)
+
     const {
         register,
         handleSubmit,
         reset,
-        formState: {errors , isSubmitSuccessful}
-    } = useForm();
-    
-    // data is like 
-//     {
-//   "firstname": "Shobhan",
-//   "lastname": "Bhagwati",
-//   "email": "shobhan@gmail.com",
-//   "message": "Hello bhai!"
-// }
-    console.log("inside the contact form")
-    const submitContactform = async(data)=>{
-       
-        console.log("Submitting data:", data);
-console.log("API endpoint:", SUBMIT_SUGGESTIONS_API);
+        setValue,
+        watch,
+        formState: { errors, isSubmitSuccessful }
+    } = useForm({ defaultValues: { rating: 0 } })
 
-   
-    try{
-        const response = await apiConnector("POST" , SUBMIT_SUGGESTIONS_API , data );
-        if(!response.data.success){
-            console.log(response.data.message);
-            toast.error("Something went wrong");
+    const selectedRating = watch("rating")
+
+    const submitReview = async (data) => {
+        if (data.rating === 0) {
+            toast.error("Please select a rating")
+            return
         }
-        console.log(response);
- 
-        toast.success("Thank You For your valuable feedback")
-    }catch(err){
-        console.log(err);
+        setLoading(true)
+        try {
+            const response = await apiConnector(
+                "POST",
+                ratingEndpoints.CREATE_RATING,
+                { rating: data.rating, review: data.review },
+                { Authorization: `Bearer ${token}` }
+            )
+            if (!response.data.success) {
+                toast.error("Something went wrong")
+            } else {
+                toast.success("Review submitted successfully! 🎉")
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error("Could not submit review")
+        }
+        setLoading(false)
     }
-    }
-// yaha pr useeffect ka use hoga jb bhi formsubmit ho jayega and it will clear the data
-useEffect(() => {
-  if (isSubmitSuccessful) {
-    reset({
-      firstname: "",
-      lastname: "",
-      email: "",
-      message: "",
-      phonenumber: ""
-    });
-  }
-}, [isSubmitSuccessful, reset]); // dependency add karna important
-  return (
-    <form onSubmit={handleSubmit(submitContactform)}>
-    <div className='w-full flex flex-col gap-6'>
-    <div className='flex  mt-14 gap-5'>
-     <div className='flex flex-col '>
-        <label htmlFor='firstname'>First Name</label>
-        <input
-        type='text'
-        name='firstname'
-        placeholder='Enter first Name'
-        className='border-2 border-gray-400 p-1 rounded-md'
-        {...register("firstname" ,{required  : true} )}
-        // is register ki help se ek key create ho jaati hai jiska name hai firstname
-        ></input>
-         {
-            errors.firstname && (
-                <span>please enter firstname</span>
-            )
+
+    useEffect(() => {
+        if (isSubmitSuccessful) {
+            reset({ rating: 0, review: "" })
+            setHovered(0)
         }
-     </div>
+    }, [isSubmitSuccessful, reset])
 
-      <div className='flex flex-col'>
-        <label htmlFor='lastname'>Last Name</label>
-        <input
-        type='text'
-        name='lastname'
-        placeholder='Enter last Name'
-        className='border-2 border-gray-400 p-1 rounded-md'
-        {...register("lastname" ,{required: true})}
-        ></input>
-        {
-            errors.lastname && (
-                <span>please enter lastname</span>
-            )
-        }
-     </div>
+    const inputStyle = `
+        w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 
+        text-slate-900 placeholder:text-slate-400 focus:bg-white
+        focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 
+        transition-all duration-200 shadow-sm
+    `
+    const labelStyle = "text-sm font-bold text-slate-700 mb-2 ml-1 block"
 
-     
-    </div>
+    return (
+        <form onSubmit={handleSubmit(submitReview)} className="max-w-2xl mx-auto">
+            <div className='flex flex-col gap-8'>
 
-    <div className='flex flex-col '>
-        <label htmlFor='email'>Email Address</label>
-        <input
-        type='text'
-        name='email'
-        placeholder='Enter email address'
-        className='border-2 border-gray-400 p-1 rounded-md'
-        {...register("email" , {required : true})}
-        ></input>
-        {
-            errors.email && (
-                <span>Please enter you email</span>
-            )
-        }
-     </div>
+                {/* 1. Star Rating */}
+                <div className='flex flex-col'>
+                    <label className={labelStyle}>Your Rating</label>
+                    <div className="flex gap-2 mt-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                                key={star}
+                                size={36}
+                                className={`cursor-pointer transition-all duration-150 
+                                    ${(hovered || selectedRating) >= star
+                                        ? "text-yellow-400 fill-yellow-400 scale-110"
+                                        : "text-slate-300"
+                                    }`}
+                                onMouseEnter={() => setHovered(star)}
+                                onMouseLeave={() => setHovered(0)}
+                                onClick={() => setValue("rating", star)}
+                            />
+                        ))}
+                    </div>
+                    {/* hidden input to register rating */}
+                    <input type="hidden" {...register("rating", { min: 1 })} />
+                    {errors.rating && <span className="text-xs text-red-500 mt-1 ml-1 font-medium">Please select a rating</span>}
+                </div>
 
-     {/* phone number */}
-     <div className='flex flex-col'>
-        <label htmlFor='dropdown'>Phone number</label>
-        <div className='flex'>
-           <select
-         name='dropdown'
-         id='dropdown'
-         className='w-[20%] border-2 border-gray-400 p-1 rounded-md'>
-        {
-          countryCode.map((element) =>{
-            return(
-                <option
-                value={element.code}>
-                  {element.code} - {element.country}
-                </option>
-            )
-          })
-        }
-        </select>
-        <input
-        name='phonenumber'
-        placeholder='12345 67890'
-        className='w-full border-2 border-gray-400 p-1 rounded-md'
-        {...register("phonenumber" ,
-        {
-            required :{value:true},
-            maxLength:{value:10, message:"Invalid Phone number"},
-            minLength:{value:8, message: "Invalid Phone number"}
-        }
-        )}
-        ></input>
-        {
-            errors.phonenumber &&(
-                <span>Enter valid phone number</span>
-            )
-        }
-        </div>
-       
-     </div>
+                {/* 2. Review Message */}
+                <div className='flex flex-col'>
+                    <label className={labelStyle}>Your Review</label>
+                    <textarea
+                        placeholder='Share your experience with this course...'
+                        rows={5}
+                        className={inputStyle}
+                        {...register("review", { required: "Please write a review" })}
+                    />
+                    {errors.review && <span className="text-xs text-red-500 mt-1 ml-1 font-medium">{errors.review.message}</span>}
+                </div>
 
-     {/* message */}
-     <div className='flex flex-col'>
-        <label>Message</label>
-        <textarea
-        name='message'
-        type='text'
-        placeholder='Enter your message here'
-        cols={20}
-        rows={7}
-         className='border-2 border-gray-400 p-1 rounded-md'
-        {...register("message" , {required:true})}
-        >
-        </textarea>
-        {
-            errors.message &&(
-                <span>Enter your Message</span>
-            )
-        } 
-     </div>
+                {/* 3. Submit */}
+                <div className="mt-2">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full py-4 rounded-xl font-bold text-lg transition-all 
+                        ${loading
+                            ? "bg-slate-400 cursor-not-allowed text-white"
+                            : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 hover:-translate-y-1"
+                        }`}
+                    >
+                        {loading ? "Submitting..." : "Submit Review ✨"}
+                    </button>
+                </div>
 
-     <div className="w-[200px]">
-        <CTAButton active={true}>Send Message</CTAButton>
-     </div>
-    </div>
-    
-     
-    </form>
-
-
-
-  )
+            </div>
+        </form>
+    )
 }
 
-export default ContactForm
+export default ReviewForm
