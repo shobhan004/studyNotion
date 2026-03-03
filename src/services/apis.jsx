@@ -61,4 +61,4 @@ export const RATING_API = {
 export const ratingEndpoints = {
     CREATE_RATING: BASE_URL + "/rating/create",
     GET_ALL_RATINGS: BASE_URL + "/rating/getAll",
-}
+} 
