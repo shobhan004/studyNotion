@@ -18,7 +18,7 @@ const Courses = () => {
     const fetchCourses = async () => {
       setLoading(true);
       try {
-        const res = await apiConnector("GET", "courseEndpoints.GET_ALL_COURSE_API");
+        const res = await apiConnector("GET", courseEndpoints.GET_ALL_COURSE_API);
         if (res.data.success) {
           setAllCourses(res.data.data);
         }
@@ -47,7 +47,7 @@ const Courses = () => {
     try {
       const response = await apiConnector(
         "POST",
-        "http://localhost:4000/api/v1/course/addToCart", 
+        "courseEndpoints.ADD_TO_CART_API", 
         {
           courseData: {
             id: course._id,
