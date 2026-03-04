@@ -314,7 +314,7 @@ export const getInstructorCourses = async (req, res) => {
 export const getFullCourseDetails = async (req, res) => {
   try {
     const { courseId } = req.body;
-    const userId = req.user.id; 
+    const userId = req.user.id || null; 
 
     const courseDetails = await Course.findOne({ _id: courseId })
       .populate({
