@@ -24,7 +24,7 @@ const MyCourses = () => {
       try {
         const res = await apiConnector(
           "GET", 
-          "http://localhost:4000/api/v1/course/getInstructorCourses", 
+          "https://studynotion-2-i5wm.onrender.com/api/v1/course/getInstructorCourses", 
           null, 
           { Authorization: `Bearer ${token}` }
         );
@@ -49,7 +49,7 @@ const MyCourses = () => {
        // 1. Fixed URL and Bearer space
        const res = await apiConnector(
            "DELETE", 
-           "http://localhost:4000/api/v1/course/deleteCourse", // Tumhara backend route
+           "https://studynotion-2-i5wm.onrender.com/api/v1/course/deleteCourse", // Tumhara backend route
            { courseId: courseToDelete._id }, 
            { Authorization: `Bearer ${token}` } // Space zaroori hai!
        );
@@ -64,6 +64,18 @@ const MyCourses = () => {
        console.log("Delete karne mein issue aaya:", error);
     }
   }
+
+  // 🚀 Edit Button ka naya logic
+const handleEditCourse = (course) => {
+    // 1. Pura course object Redux mein save karo
+    dispatch(setInstructorCourse(course)); 
+    // 2. Edit mode on karo (taaki forms ko pata chale ki update karna hai)
+    dispatch(setEditCourse(true));
+    // 3. Step 1 par bhej do (Basic Info pehle check karega instructor)
+    dispatch(setStep(1));
+    // 4. URL par navigate karo
+    navigate(`/dashboard/edit-course/${course._id}`);
+};
 
   // 1. SKELETON LOADER
   if (loading) {
@@ -170,7 +182,7 @@ const MyCourses = () => {
                   </div>
                   <div className="flex items-center gap-1">
                       <button
-                      onClick={() => navigate(`/dashboard/edit-course/${course._id}`)}
+                      onClick={() => handleEditCourse(course)}
                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Course">
                           <FiEdit3 className="w-4 h-4" />
                       </button>

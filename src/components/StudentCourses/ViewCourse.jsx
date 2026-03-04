@@ -19,7 +19,7 @@ const ViewCourse = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       
-      const response = await apiConnector("POST", "http://localhost:4000/api/v1/course/getFullCourseDetails", { courseId }, {
+      const response = await apiConnector("POST", "https://studynotion-2-i5wm.onrender.com/api/v1/course/getFullCourseDetails", { courseId }, {
         Authorization: `Bearer ${token}`
       });
 
@@ -63,7 +63,7 @@ const ViewCourse = () => {
       const token = localStorage.getItem("token");
       const response = await apiConnector(
         "POST",
-        "http://localhost:4000/api/v1/progress/updateCourseProgress",
+        "https://studynotion-2-i5wm.onrender.com/api/v1/progress/updateCourseProgress",
         { courseId, subSectionId: activeVideo._id },
         { Authorization: `Bearer ${token}` }
       );

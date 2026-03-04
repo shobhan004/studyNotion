@@ -27,7 +27,7 @@ const SubSectionModal = ({ sectionId, setModalData, add = false, view = false, e
       formData.append("videoFile", data.lectureVideo[0])
       formData.append("timeDuration", "10:00") // Dummy for now
 
-      const res = await apiConnector("POST", "http://localhost:4000/api/v1/course/addSubSection", formData, {
+      const res = await apiConnector("POST", "https://studynotion-2-i5wm.onrender.com/api/v1/course/addSubSection", formData, {
         Authorization: `Bearer ${localStorage.getItem("token")?.replace(/"/g, "")}`,
       })
 

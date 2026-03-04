@@ -52,7 +52,7 @@ const MyProfile = () => {
         try {
           const response = await apiConnector(
             "GET", 
-            "http://localhost:4000/api/v1/profile/instructorDashboard", 
+            "https://studynotion-2-i5wm.onrender.com/api/v1/profile/instructorDashboard", 
             null, 
             { Authorization: `Bearer ${token}` }
           )

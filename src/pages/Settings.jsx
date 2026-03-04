@@ -105,7 +105,7 @@ const Settings = () => {
 
       const response = await apiConnector(
         "PUT", 
-        "http://localhost:4000/api/v1/profile/updateDisplayPicture", 
+        "https://studynotion-2-i5wm.onrender.com/api/v1/profile/updateDisplayPicture", 
         formData, 
         {
           "Content-Type": "multipart/form-data",
@@ -134,7 +134,7 @@ const Settings = () => {
     const toastId = toast.loading("Syncing profile data...")
     try {
       setLoading(true);
-      const response = await apiConnector("PUT", "http://localhost:4000/api/v1/profile/updateProfile", formData, {
+      const response = await apiConnector("PUT", "https://studynotion-2-i5wm.onrender.com/api/v1/profile/updateProfile", formData, {
         Authorization: `Bearer ${token}`,
       });
 
@@ -155,7 +155,7 @@ const Settings = () => {
     const toastId = toast.loading("Processing account termination...")
     try {
       setLoading(true);
-      const response = await apiConnector("DELETE", "http://localhost:4000/api/v1/profile/deleteProfile", null, {
+      const response = await apiConnector("DELETE", "https://studynotion-2-i5wm.onrender.com/api/v1/profile/deleteProfile", null, {
         Authorization: `Bearer ${token}`,
       });
 

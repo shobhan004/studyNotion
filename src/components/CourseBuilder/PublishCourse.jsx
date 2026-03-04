@@ -47,7 +47,7 @@ const PublishCourse = () => {
 
       const res = await apiConnector(
         "POST",
-        "http://localhost:4000/api/v1/course/editCourse",
+        "https://studynotion-2-i5wm.onrender.com/api/v1/course/editCourse",
         formData,
         { Authorization: `Bearer ${token}` }
       );

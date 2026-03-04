@@ -17,7 +17,7 @@ export default function EditCourse() {
       try {
         const result = await apiConnector(
           "POST",
-          "http://localhost:4000/api/v1/course/getFullCourseDetails", // 👈 Ye API honi chahiye
+          "https://studynotion-2-i5wm.onrender.com/api/v1/course/getFullCourseDetails", // 👈 Ye API honi chahiye
           { courseId },
           { Authorization: `Bearer ${token}` }
         )

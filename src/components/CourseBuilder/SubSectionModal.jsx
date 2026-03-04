@@ -47,7 +47,7 @@ const SubSectionModal = ({ sectionId, setModalData, add = false }) => {
 
       const res = await apiConnector(
         "POST",
-        "http://localhost:4000/api/v1/course/addSubSection",
+        "https://studynotion-2-i5wm.onrender.com/api/v1/course/addSubSection",
         formData,
         { 
           Authorization: `Bearer ${token}`,
@@ -140,7 +140,7 @@ const SubSectionModal = ({ sectionId, setModalData, add = false }) => {
             disabled={loading}
             className="w-full rounded-2xl bg-blue-600 py-4 font-black text-white shadow-2xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-[0.98] disabled:bg-gray-400"
           >
-            {loading ? "Processing Video..." : "Save Lecture"}a
+            {loading ? "Processing Video..." : "Save Lecture"}
           </button>
         </form>
 

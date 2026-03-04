@@ -19,7 +19,7 @@ const CourseDetails = () => {
     const fetchCourseDetails = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await apiConnector("POST", "http://localhost:4000/api/v1/course/getFullCourseDetails", { courseId } , { 
+        const res = await apiConnector("POST", "https://studynotion-2-i5wm.onrender.com/api/v1/course/getFullCourseDetails", { courseId } , { 
           // 🚀 2. Headers mein Authorization token add karo
           Authorization: `Bearer ${token}`, 
         })
@@ -40,7 +40,7 @@ const CourseDetails = () => {
     
     const toastId = toast.loading("Adding...")
     try {
-      const res = await apiConnector("POST", "http://localhost:4000/api/v1/course/addToCart", 
+      const res = await apiConnector("POST", "https://studynotion-2-i5wm.onrender.com/api/v1/course/addToCart", 
         { courseData: { id: courseData._id, courseName: courseData.courseName, price: courseData.price, thumbnail: courseData.thumbnail } },
         { Authorization: `Bearer ${token}` }
       )

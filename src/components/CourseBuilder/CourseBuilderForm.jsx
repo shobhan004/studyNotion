@@ -29,8 +29,8 @@ const CourseBuilderForm = () => {
       const result = await apiConnector(
         "POST",
         editSectionId 
-          ? "http://localhost:4000/api/v1/course/updateSection" 
-          : "http://localhost:4000/api/v1/course/createSection",
+          ? "https://studynotion-2-i5wm.onrender.com/api/v1/course/updateSection" 
+          : "https://studynotion-2-i5wm.onrender.com/api/v1/course/createSection",
         {
           sectionName,
           sectionId: editSectionId, // Edit mode mein ye ID backend jayegi
@@ -63,7 +63,7 @@ const CourseBuilderForm = () => {
     try {
       const result = await apiConnector(
         "POST",
-        "http://localhost:4000/api/v1/course/deleteSection",
+        "https://studynotion-2-i5wm.onrender.com/api/v1/course/deleteSection",
         { sectionId, courseId: course._id },
         { Authorization: `Bearer ${token}` }
       );
@@ -82,7 +82,7 @@ const CourseBuilderForm = () => {
     try {
         const result = await apiConnector(
             "POST",
-            "http://localhost:4000/api/v1/course/deleteSubSection",
+            "https://studynotion-2-i5wm.onrender.com/api/v1/course/deleteSubSection",
             { 
                 subSectionId, 
                 sectionId, 

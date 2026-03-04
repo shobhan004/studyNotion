@@ -49,7 +49,7 @@ const removeHandler = async (courseId) => {
 
 
       // Backend request bheji
-      const response = await apiConnector("DELETE", "http://localhost:4000/api/v1/course/removeFromCart", { courseId }, {
+      const response = await apiConnector("DELETE", "https://studynotion-2-i5wm.onrender.com/api/v1/course/removeFromCart", { courseId }, {
         Authorization: `Bearer ${token}`,
       });
 

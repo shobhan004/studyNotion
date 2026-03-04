@@ -18,7 +18,7 @@ const Courses = () => {
     const fetchCourses = async () => {
       setLoading(true);
       try {
-        const res = await apiConnector("GET", "http://localhost:4000/api/v1/course/getAllCourses");
+        const res = await apiConnector("GET", "courseEndpoints.GET_ALL_COURSE_API");
         if (res.data.success) {
           setAllCourses(res.data.data);
         }

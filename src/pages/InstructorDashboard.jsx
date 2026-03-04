@@ -6,7 +6,7 @@ import { apiConnector } from '../services/apiconnector'; // Path verify kar lena
 import toast from 'react-hot-toast';
 
 // 🚀 API URL - Agar teri apis.js mein hai toh wahan se import karna better hai
-const INSTRUCTOR_DASHBOARD_API = "http://localhost:4000/api/v1/profile/instructorDashboard"; 
+const INSTRUCTOR_DASHBOARD_API = "https://studynotion-2-i5wm.onrender.com/api/v1/profile/instructorDashboard"; 
 
 
 

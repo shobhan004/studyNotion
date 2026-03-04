@@ -44,7 +44,7 @@ const AddCourse = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await apiConnector("GET", "http://localhost:4000/api/v1/course/showAllCategories");
+        const res = await apiConnector("GET", "https://studynotion-2-i5wm.onrender.com/api/v1/course/showAllCategories");
         if (res) setCourseCategories(res.data.data);
       } catch (error) {
         console.log("Categories fetch nahi ho payi bhai:", error);
@@ -120,7 +120,7 @@ const AddCourse = () => {
     }
 
     const apiUrl = editCourse 
-      ? "http://localhost:4000/api/v1/course/editCourse" 
+      ? "https://studynotion-2-i5wm.onrender.com/api/v1/course/editCourse" 
       : courseEndpoints.CREATE_COURSE_API;
 
     const res = await apiConnector(

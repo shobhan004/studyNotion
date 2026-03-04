@@ -26,7 +26,7 @@ export default function EditCourse() {
                 // Backend se purana data la rahe hain
                 const res = await apiConnector(
                     "POST", 
-                    "http://localhost:4000/api/v1/course/getFullCourseDetails", 
+                    "https://studynotion-2-i5wm.onrender.com/api/v1/course/getFullCourseDetails", 
                     { courseId },
                     { Authorization: `Bearer ${token}` }
                 );
